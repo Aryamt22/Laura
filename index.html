@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>¿Quieres ser mi cita de San Valentín?</title>
+  <title>Laura, ¿quieres ser mi cita de San Valentín este 14 de febrero?</title>
 
   <!-- Confetti library -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
@@ -30,6 +30,7 @@
       padding: 16px;
     }
 
+    /* FULL-SCREEN CONFETTI CANVAS */
     #confettiCanvas {
       position: fixed;
       inset: 0;
@@ -170,21 +171,22 @@
             fill="#ff7aa2"/>
     </svg>
 
-    <h1>Laura, ¿quieres ser mi cita de San Valentín este 14 de febrero?</h1>
+    <h1>nirali will you be my valentine?</h1>
 
     <section class="button-zone" id="zone">
-      <button id="yesBtn">Sí</button>
+      <button id="yesBtn">Yes</button>
       <button id="noBtn">No</button>
     </section>
 
-    <div class="hint" id="hint">“No” parece un poco tímido 😈</div>
+    <!-- HINT -->
+    <div class="hint" id="hint">“No” seems a bit shy 😈</div>
 
     <section class="result" id="result">
-      <h2>Sabía que dirías que sí 💖</h2>
+      <h2>YAY! 🎉</h2>
       <img
         class="fireworks"
         src="https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif"
-        alt="Fuegos artificiales"
+        alt="Fireworks"
       />
     </section>
   </main>
@@ -196,6 +198,7 @@
     const result = document.getElementById("result");
     const hint = document.getElementById("hint");
 
+    /* ---------- CONFETTI ---------- */
     const confettiCanvas = document.getElementById("confettiCanvas");
 
     function resizeConfettiCanvas() {
@@ -220,4 +223,84 @@
 
       (function frame() {
         confettiInstance({
-          pa
+          particleCount: 12,
+          spread: 90,
+          startVelocity: 45,
+          ticks: 180,
+          origin: { x: Math.random(), y: Math.random() * 0.3 }
+        });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      })();
+
+      setTimeout(() => {
+        confettiInstance({
+          particleCount: 300,
+          spread: 140,
+          startVelocity: 60,
+          ticks: 220,
+          origin: { x: 0.5, y: 0.55 }
+        });
+      }, 300);
+    }
+
+    /* ---------- YES BUTTON GROWS ---------- */
+    let yesScale = 1;
+    function growYes() {
+      yesScale = Math.min(2.2, yesScale + 0.1);
+      yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
+    }
+
+    /* ---------- NO BUTTON RUNS AWAY ---------- */
+    function clamp(n, min, max) {
+      return Math.max(min, Math.min(max, n));
+    }
+
+    function moveNo(px, py) {
+      const z = zone.getBoundingClientRect();
+      const b = noBtn.getBoundingClientRect();
+
+      let dx = (b.left + b.width / 2) - px;
+      let dy = (b.top + b.height / 2) - py;
+      let mag = Math.hypot(dx, dy) || 1;
+      dx /= mag;
+      dy /= mag;
+
+      let newLeft = (b.left - z.left) + dx * 150;
+      let newTop  = (b.top - z.top) + dy * 150;
+
+      newLeft = clamp(newLeft, 0, z.width - b.width);
+      newTop  = clamp(newTop, 0, z.height - b.height);
+
+      noBtn.style.left = newLeft + "px";
+      noBtn.style.top = newTop + "px";
+      noBtn.style.transform = "none";
+
+      growYes();
+    }
+
+    zone.addEventListener("pointermove", e => {
+      const b = noBtn.getBoundingClientRect();
+      const d = Math.hypot(
+        (b.left + b.width / 2) - e.clientX,
+        (b.top + b.height / 2) - e.clientY
+      );
+      if (d < 140) moveNo(e.clientX, e.clientY);
+    });
+
+    noBtn.addEventListener("click", e => e.preventDefault());
+
+    /* ---------- YES CLICK ---------- */
+    yesBtn.addEventListener("click", () => {
+      zone.style.display = "none";
+      hint.style.display = "none";     // HIDE THE HINT
+      result.style.display = "block";
+      resizeConfettiCanvas();
+      fullScreenConfetti();
+    });
+  </script>
+</body>
+</html>
+
+
+
+
